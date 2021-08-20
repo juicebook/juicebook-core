@@ -24,7 +24,7 @@ contract Chitin is ERC20("Chitin", "CHIT"), Ownable {
         endReleaseBlock = _endReleaseBlock;
 
         // mint 250k for seeding liquidity
-        mint(msg.sender, 250000e18);
+        mint(msg.sender, 500000e18);
     }
 
     function decimals() public view virtual override returns (uint8) {
