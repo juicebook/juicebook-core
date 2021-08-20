@@ -4,8 +4,8 @@ import chai from 'chai';
 import { solidity } from 'ethereum-waffle';
 import '@openzeppelin/test-helpers';
 import {
-    JuiceToken,
-    JuiceToken__factory,
+    Chitin,
+    Chitin__factory,
     Minter,
     Minter__factory,
     MockERC20,
@@ -19,9 +19,9 @@ describe('Minter', () => {
     const BLOCK_REWARDS = ethers.utils.parseEther('5000');
 
     // Contract as Signer
-    let juiceTokenAsAlice: JuiceToken;
-    let juiceTokenAsBob: JuiceToken;
-    let juiceTokenAsDev: JuiceToken;
+    let juiceTokenAsAlice: Chitin;
+    let juiceTokenAsBob: Chitin;
+    let juiceTokenAsDev: Chitin;
 
     let stoken0AsDeployer: MockERC20;
     let stoken0AsAlice: MockERC20;
@@ -44,7 +44,7 @@ describe('Minter', () => {
     let bob: Signer;
     let dev: Signer;
 
-    let juiceToken: JuiceToken;
+    let juiceToken: Chitin;
     let minter: Minter;
     let stakingTokens: MockERC20[];
 
@@ -54,9 +54,9 @@ describe('Minter', () => {
         let block = await ethers.provider.getBlockNumber();
 
         // Setup Minter contract
-        // Deploy JUICE
-        const JuiceToken = (await ethers.getContractFactory('JuiceToken', deployer)) as JuiceToken__factory;
-        juiceToken = await JuiceToken.deploy(block + 23, block + 28);
+        // Deploy CHIT
+        const Chitin = (await ethers.getContractFactory('Chitin', deployer)) as Chitin__factory;
+        juiceToken = await Chitin.deploy(block + 23, block + 28);
         await juiceToken.deployed();
 
         const Minter = (await ethers.getContractFactory('Minter', deployer)) as Minter__factory;
@@ -73,9 +73,9 @@ describe('Minter', () => {
             stakingTokens.push(mockERC20);
         }
 
-        juiceTokenAsAlice = JuiceToken__factory.connect(juiceToken.address, alice);
-        juiceTokenAsBob = JuiceToken__factory.connect(juiceToken.address, bob);
-        juiceTokenAsDev = JuiceToken__factory.connect(juiceToken.address, dev);
+        juiceTokenAsAlice = Chitin__factory.connect(juiceToken.address, alice);
+        juiceTokenAsBob = Chitin__factory.connect(juiceToken.address, bob);
+        juiceTokenAsDev = Chitin__factory.connect(juiceToken.address, dev);
 
         stoken0AsDeployer = MockERC20__factory.connect(stakingTokens[0].address, deployer);
         stoken0AsAlice = MockERC20__factory.connect(stakingTokens[0].address, alice);
@@ -265,7 +265,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('10000')
             );
 
-            // 8. Alice should get 15,000 JUICE when she harvest
+            // 8. Alice should get 15,000 CHIT when she harvest
             // also check that dev got his tax
             await minterAsAlice.harvest(0);
             expect(await juiceToken.balanceOf(await alice.getAddress())).to.be.bignumber.eq(
@@ -276,7 +276,7 @@ describe('Minter', () => {
             );
 
             // 9. Bob come in and join the party
-            // 2 blocks are mined here, hence Alice should get 10,000 JUICE more
+            // 2 blocks are mined here, hence Alice should get 10,000 CHIT more
             await stoken0AsBob.approve(minter.address, ethers.utils.parseEther('100'));
             await minterAsBob.deposit(0, ethers.utils.parseEther('100'));
 
@@ -292,8 +292,8 @@ describe('Minter', () => {
 
             // 11. Check pendingRewards
             // Reward per Block must now share amoung Bob and Alice (50-50)
-            // Alice should has 12,500 JUICE (10,000 + 2,500)
-            // Bob should has 2,500 JUICE
+            // Alice should has 12,500 CHIT (10,000 + 2,500)
+            // Bob should has 2,500 CHIT
             // Dev get 10% tax per block (5,000*0.1 = 500/block)
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
                 ethers.utils.parseEther('12500')
@@ -310,8 +310,8 @@ describe('Minter', () => {
 
             // 13. Check pendingRewards
             // Reward per Block must now share amoung Bob and Alice (50-50)
-            // Alice should has 15,000 JUICE (12,500 + 2,500)
-            // Bob should has 5,000 JUICE (2,500 + 2,500)
+            // Alice should has 15,000 CHIT (12,500 + 2,500)
+            // Bob should has 5,000 CHIT (2,500 + 2,500)
             // Dev get 10% tax per block (5,000*0.1 = 500/block)
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
                 ethers.utils.parseEther('15000')
@@ -325,8 +325,8 @@ describe('Minter', () => {
 
             // 14. Bob harvest his yield
             // Reward per Block is till (50-50) as Bob is not leaving the pool yet
-            // Alice should has 17,500 JUICE (15,000 + 2,500) in pending
-            // Bob should has 7,500 JUICE (5,000 + 2,500) in his account as he harvest it
+            // Alice should has 17,500 CHIT (15,000 + 2,500) in pending
+            // Bob should has 7,500 CHIT (5,000 + 2,500) in his account as he harvest it
             // Dev get 10% tax per block (5,000*0.1 = 500/block)
             await minterAsBob.harvest(0);
 
@@ -343,15 +343,15 @@ describe('Minter', () => {
                 ethers.utils.parseEther('4000')
             );
 
-            // 15. Alice wants more JUICE so she deposits 300 STOKEN0 more for a total of 400 relative to Bob's 100
+            // 15. Alice wants more CHIT so she deposits 300 STOKEN0 more for a total of 400 relative to Bob's 100
             await stoken0AsAlice.approve(minter.address, ethers.utils.parseEther('300'));
             await minterAsAlice.deposit(0, ethers.utils.parseEther('300'));
 
             // Alice deposit to the same pool as she already has some STOKEN0 in it
             // Hence, Alice will get auto-harvest
-            // Alice should get 22,500 JUICE (17,500 + 2,500 [B1] + 2,500 [B2]) back to her account
-            // Hence, Alice should has 15,000 + 20,000 = 35,000 JUICE in her account and 0 pending as she harvested
-            // Bob should has (2,500 [B1] + 2,500 [B2]) = 5,000 JUICE in pending
+            // Alice should get 22,500 CHIT (17,500 + 2,500 [B1] + 2,500 [B2]) back to her account
+            // Hence, Alice should has 15,000 + 20,000 = 35,000 CHIT in her account and 0 pending as she harvested
+            // Bob should has (2,500 [B1] + 2,500 [B2]) = 5,000 CHIT in pending
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
                 ethers.utils.parseEther('0')
             );
@@ -373,8 +373,8 @@ describe('Minter', () => {
 
             // 1 more block is mined, now Alice shold get 80% and Bob should get 20% of rewards
             // How many STOKEN0 needed to make Alice get 80%: find n from 100n/(100n+100) = 0.8
-            // Hence, Alice should get 0 + 4,000 = 4,000 JUICE in pending
-            // Bob should get 5,000 + 1,000 = 6,000 JUICE in pending
+            // Hence, Alice should get 0 + 4,000 = 4,000 CHIT in pending
+            // Bob should get 5,000 + 1,000 = 6,000 CHIT in pending
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
                 ethers.utils.parseEther('4000')
             );
@@ -401,15 +401,15 @@ describe('Minter', () => {
             // Trigger this to mint token for dev, 1 more block mined
             await minterAsDeployer.massUpdatePools();
             // Expect pending balances
-            // Each block during bonus period Alice will get 40,000 JUICE in pending
-            // Bob will get 10,000 JUICE in pending
+            // Each block during bonus period Alice will get 40,000 CHIT in pending
+            // Bob will get 10,000 CHIT in pending
             // Total blocks mined = 9 blocks counted from setBonus executed
             // However, bonus will start to accu. on the setBonus's block + 1
             // Hence, 5 blocks during bonus period and 3 blocks are out of bonus period
-            // Hence Alice will get 4,000 + (40,000 * 5) + (4,000 * 4) = 220,000 JUICE in pending
-            // Bob will get 6,000 + (10,000*5)+(1,000*4) = 60,000 JUICE in pending
-            // Dev will get 5,500 + (5000*5*0.1) + (500*4) = 10,000 JUICE in account
-            // Dev will get 0 + (5000*5*0.9) = 22,500 JUICE locked in JuiceToken contract
+            // Hence Alice will get 4,000 + (40,000 * 5) + (4,000 * 4) = 220,000 CHIT in pending
+            // Bob will get 6,000 + (10,000*5)+(1,000*4) = 60,000 CHIT in pending
+            // Dev will get 5,500 + (5000*5*0.1) + (500*4) = 10,000 CHIT in account
+            // Dev will get 0 + (5000*5*0.9) = 22,500 CHIT locked in Chitin contract
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
                 ethers.utils.parseEther('220000')
             );
@@ -429,15 +429,15 @@ describe('Minter', () => {
                 ethers.utils.parseEther('22500')
             );
 
-            // 18. Alice harvest her pending JUICE
-            // Alice Total Pending is 220,000 JUICE
-            // 50,000 * 5 = 200,000 JUICE are from bonus period
+            // 18. Alice harvest her pending CHIT
+            // Alice Total Pending is 220,000 CHIT
+            // 50,000 * 5 = 200,000 CHIT are from bonus period
             // Hence subject to lock 200,000 * 0.9 = 180,000 will be locked
-            // 200,000 - 180,000 = 20,000 JUICE from bonus period should be free float
-            // Alice should get 37,500 + (220,000-180,000) + 4,000 = 81,500 JUICE
+            // 200,000 - 180,000 = 20,000 CHIT from bonus period should be free float
+            // Alice should get 37,500 + (220,000-180,000) + 4,000 = 81,500 CHIT
             // 1 Block is mined, hence Bob pending must be increased
-            // Bob should get 60,000 + 1,000 = 61,000 JUICE
-            // Dev should get 500 JUICE in the account
+            // Bob should get 60,000 + 1,000 = 61,000 CHIT
+            // Dev should get 500 CHIT in the account
             await minterAsAlice.harvest(0);
 
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
@@ -463,15 +463,15 @@ describe('Minter', () => {
                 ethers.utils.parseEther('22500')
             );
 
-            // 19. Bob harvest his pending JUICE
-            // Bob Total Pending is 61,000 JUICE
-            // 10,000 * 5 = 50,000 JUICE are from bonus period
+            // 19. Bob harvest his pending CHIT
+            // Bob Total Pending is 61,000 CHIT
+            // 10,000 * 5 = 50,000 CHIT are from bonus period
             // Hence subject to lock 50,000 * 0.9 = 45,000 will be locked
-            // 50,000 - 45,000 = 5,000 JUICE from bonus period should be free float
-            // Bob should get 7,500 + (61,000-45,000) + 1,000 = 24,500 JUICE
+            // 50,000 - 45,000 = 5,000 CHIT from bonus period should be free float
+            // Bob should get 7,500 + (61,000-45,000) + 1,000 = 24,500 CHIT
             // 1 Block is mined, hence Bob pending must be increased
-            // Alice should get 0 + 4,000 = 4,000 JUICE in pending
-            // Dev should get 500 JUICE in the account
+            // Alice should get 0 + 4,000 = 4,000 CHIT in pending
+            // Dev should get 500 CHIT in the account
             await minterAsBob.harvest(0);
 
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
@@ -502,9 +502,9 @@ describe('Minter', () => {
             // 20. Alice is happy. Now she want to leave the pool.
             // 2 Blocks are mined
             // Alice pending must be 0 as she harvest and leave the pool.
-            // Alice should get 121,500 + 4,000 + 4,000 = 129,500 JUICE
-            // Bob pending should be 1,000 JUICE
-            // Dev get another 500 JUICE
+            // Alice should get 121,500 + 4,000 + 4,000 = 129,500 CHIT
+            // Bob pending should be 1,000 CHIT
+            // Dev get another 500 CHIT
             await minterAsAlice.withdrawAll(0);
 
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
@@ -541,9 +541,9 @@ describe('Minter', () => {
             // 21. Bob is happy. Now he want to leave the pool.
             // 1 Blocks is mined
             // Alice should not move as she left the pool already
-            // Bob pending should be 0 JUICE
-            // Bob should have 24,500 + 1,000 + 5,000 (from block where alice left) = 40,500 JUICE in his account
-            // Dev get another 500 JUICE
+            // Bob pending should be 0 CHIT
+            // Bob should have 24,500 + 1,000 + 5,000 (from block where alice left) = 40,500 CHIT in his account
+            // Dev get another 500 CHIT
             await minterAsBob.withdrawAll(0);
 
             expect(await minter.pendingRewards(0, await alice.getAddress())).to.be.bignumber.eq(
@@ -577,7 +577,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('22500')
             );
 
-            // Locked JUICE will be released on the next block
+            // Locked CHIT will be released on the next block
             // so let's move ten block to get all tokens unlocked
             for (let i = 0; i < 10; i++) {
                 // random contract call to make block mined

@@ -3,17 +3,17 @@ import { Signer } from 'ethers';
 import chai from 'chai';
 import { solidity } from 'ethereum-waffle';
 import '@openzeppelin/test-helpers';
-import { JuiceToken, JuiceToken__factory } from '../typechain';
+import { Chitin, Chitin__factory } from '../typechain';
 
 chai.use(solidity);
 const { expect } = chai;
 
-describe('JuiceToken', () => {
+describe('Chitin', () => {
     // Contract as Signer
-    let juiceTokenAsAlice: JuiceToken;
-    let juiceTokenAsBob: JuiceToken;
-    let juiceTokenAsCarol: JuiceToken;
-    let juiceTokenAsDeployer: JuiceToken;
+    let juiceTokenAsAlice: Chitin;
+    let juiceTokenAsBob: Chitin;
+    let juiceTokenAsCarol: Chitin;
+    let juiceTokenAsDeployer: Chitin;
 
     // Accounts
     let deployer: Signer;
@@ -21,21 +21,21 @@ describe('JuiceToken', () => {
     let bob: Signer;
     let carol: Signer;
 
-    let juiceToken: JuiceToken;
+    let juiceToken: Chitin;
 
     beforeEach(async () => {
         [deployer, alice, bob, carol] = await ethers.getSigners();
 
         // Setup Minter contract
-        // Deploy JUICE
-        const JuiceToken = (await ethers.getContractFactory('JuiceToken', deployer)) as JuiceToken__factory;
-        juiceToken = await JuiceToken.deploy(132, 137);
+        // Deploy CHIT
+        const Chitin = (await ethers.getContractFactory('Chitin', deployer)) as Chitin__factory;
+        juiceToken = await Chitin.deploy(132, 137);
         await juiceToken.deployed();
 
-        juiceTokenAsAlice = JuiceToken__factory.connect(juiceToken.address, alice);
-        juiceTokenAsBob = JuiceToken__factory.connect(juiceToken.address, bob);
-        juiceTokenAsCarol = JuiceToken__factory.connect(juiceToken.address, carol);
-        juiceTokenAsDeployer = JuiceToken__factory.connect(juiceToken.address, deployer);
+        juiceTokenAsAlice = Chitin__factory.connect(juiceToken.address, alice);
+        juiceTokenAsBob = Chitin__factory.connect(juiceToken.address, bob);
+        juiceTokenAsCarol = Chitin__factory.connect(juiceToken.address, carol);
+        juiceTokenAsDeployer = Chitin__factory.connect(juiceToken.address, deployer);
     });
 
     context('when transferring funds', async () => {

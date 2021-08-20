@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// JuiceToken with Governance.
-contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
-    uint256 private constant CAP = 280000000e18; // 210 million JUICE
+// Chitin Token Contract
+contract Chitin is ERC20("Chitin", "CHIT"), Ownable {
+    uint256 private constant CAP = 280000000e18; // 280 million CHIT
     uint256 private _totalLock;
 
     uint256 public startReleaseBlock;
@@ -95,16 +95,16 @@ contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
     }
 
     function canUnlockAmount(address _account) public view returns (uint256) {
-        // When block number less than startReleaseBlock, no JUICE can be unlocked
+        // When block number less than startReleaseBlock, no CHIT can be unlocked
         if (block.number < startReleaseBlock) {
             return 0;
         }
-        // When block number more than endReleaseBlock, all locked JUICE can be unlocked
+        // When block number more than endReleaseBlock, all locked CHIT can be unlocked
         else if (block.number >= endReleaseBlock) {
             return _locks[_account];
         }
         // When block number is more than startReleaseBlock but less than endReleaseBlock,
-        // some JUICE can be released
+        // some CHIT can be released
         else
         {
             uint256 releasedBlock = block.number.sub(_lastUnlockBlock[_account]);
@@ -114,7 +114,7 @@ contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
     }
 
     function unlock() external {
-        require(_locks[msg.sender] > 0, "no locked JUICE");
+        require(_locks[msg.sender] > 0, "no locked CHIT");
 
         uint256 amount = canUnlockAmount(msg.sender);
 
@@ -198,9 +198,9 @@ contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
         bytes32 structHash = keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry));
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "JUICE::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "JUICE::delegateBySig: invalid nonce");
-        require(block.timestamp <= expiry, "JUICE::delegateBySig: signature expired");
+        require(signatory != address(0), "CHIT::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "CHIT::delegateBySig: invalid nonce");
+        require(block.timestamp <= expiry, "CHIT::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -222,7 +222,7 @@ contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
         * @return The number of votes the account had as of the given block
         */
     function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256) {
-        require(blockNumber < block.number, "JUICE::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "CHIT::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -295,7 +295,7 @@ contract JuiceToken is ERC20("Juice", "JUICE"), Ownable {
         uint256 oldVotes,
         uint256 newVotes
     ) internal {
-        uint32 blockNumber = safe32(block.number, "JUICE::_writeCheckpoint: block number exceeds 32 bits");
+        uint32 blockNumber = safe32(block.number, "CHIT::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;

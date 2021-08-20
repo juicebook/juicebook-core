@@ -4,10 +4,10 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import "./JuiceToken.sol";
+import "./Chitin.sol";
 import "./interfaces/IMinter.sol";
 
-// Minter is a smart contract for distributing JUICE for staking rewards.
+// Minter is a smart contract for distributing CHIT for staking rewards.
 contract Minter is IMinter, Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -18,7 +18,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     uint256 rewardDebt; // Reward debt. See explanation below.
     uint256 bonusDebt; // Bonus reward debt.
     //
-    // We do some fancy math here. Basically, any point in time, the amount of JUICE
+    // We do some fancy math here. Basically, any point in time, the amount of CHIT
     // entitled to a user but is pending to be distributed is:
     //
     //   pending reward = (user.amount * pool.accRewardsPerShare) - user.rewardDebt
@@ -33,23 +33,23 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   // Info of each pool.
   struct PoolInfo {
     address stakeToken; // Address of Staking token contract.
-    uint256 allocPoint; // How many allocation points assigned to this pool. JUICE to distribute per block.
-    uint256 lastRewardBlock; // Last block number that JUICE distribution occurs.
-    uint256 accRewardsPerShare; // Accumulated JUICE per share, times 1e12. See below.
-    uint256 accRewardsPerShareTilBonusEnd; // Accumated JUICE per share until Bonus End.
+    uint256 allocPoint; // How many allocation points assigned to this pool. CHIT to distribute per block.
+    uint256 lastRewardBlock; // Last block number that CHIT distribution occurs.
+    uint256 accRewardsPerShare; // Accumulated CHIT per share, times 1e12. See below.
+    uint256 accRewardsPerShareTilBonusEnd; // Accumated CHIT per share until Bonus End.
   }
 
-  // The Juice TOKEN!
-  JuiceToken public juice;
+  // The Chitin TOKEN!
+  Chitin public juice;
   // Dev address.
   address public devaddr;
-  // Juice tokens created per block.
+  // Chitin tokens created per block.
   uint256 public blockRewards;
   // Bonus muliplier for early miners.
   uint256 public bonusMultiplier;
-  // Block number when bonus JUICE period ends.
+  // Block number when bonus CHIT period ends.
   uint256 public bonusEndBlock;
-  // Lock ratio over 10000 (for precision), determines how much JUICE should be locked.
+  // Lock ratio over 10000 (for precision), determines how much CHIT should be locked.
   uint256 public bonusLockRatio;
   // Dev minting rate, mint 1/10 of all rewards.
   uint256 private constant DEV_MINTING_RATE = 10;
@@ -60,7 +60,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   mapping(uint256 => mapping(address => UserInfo)) public userInfo;
   // Total allocation poitns. Must be the sum of all allocation points in all pools.
   uint256 public totalAllocPoint;
-  // The block number when Juice mining starts.
+  // The block number when Chitin mining starts.
   uint256 public startBlock;
 
   event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -68,7 +68,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
   constructor(
-    JuiceToken _juice,
+    Chitin _juice,
     address _devaddr,
     uint256 _blockRewards,
     uint256 _startBlock
@@ -132,7 +132,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     );
   }
 
-  // Update the given pool's JUICE allocation point. Can only be called by the owner.
+  // Update the given pool's CHIT allocation point. Can only be called by the owner.
   function setPool(
     uint256 _pid,
     uint256 _allocPoint,
@@ -168,7 +168,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     return bonusEndBlock.sub(_lastRewardBlock).mul(bonusMultiplier).add(_currentBlock.sub(bonusEndBlock));
   }
 
-  // View function to see pending JUICE on frontend.
+  // View function to see pending CHIT on frontend.
   function pendingRewards(uint256 _pid, address _user) external view override returns (uint256) {
     PoolInfo storage pool = poolInfo[_pid];
     UserInfo storage user = userInfo[_pid][_user];
@@ -221,7 +221,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     pool.lastRewardBlock = block.number;
   }
 
-  // Deposit Staking tokens to Minter for JUICE allocation.
+  // Deposit Staking tokens to Minter for CHIT allocation.
   function deposit(uint256 _pid, uint256 _amount) external override nonReentrant {
     PoolInfo storage pool = poolInfo[_pid];
     UserInfo storage user = userInfo[_pid][msg.sender];
@@ -259,7 +259,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     emit Withdraw(msg.sender, _pid, user.amount);
   }
 
-  // Harvest JUICE earn from the pool.
+  // Harvest CHIT earn from the pool.
   function harvest(uint256 _pid) external override nonReentrant {
     PoolInfo storage pool = poolInfo[_pid];
     UserInfo storage user = userInfo[_pid][msg.sender];
@@ -274,9 +274,9 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     UserInfo storage user = userInfo[_pid][msg.sender];
     require(user.amount > 0, "nothing to harvest");
     uint256 pending = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardDebt);
-    require(pending <= juice.balanceOf(address(this)), "not enough JUICE");
+    require(pending <= juice.balanceOf(address(this)), "not enough CHIT");
     uint256 bonus = user.amount.mul(pool.accRewardsPerShareTilBonusEnd).div(1e12).sub(user.bonusDebt);
-    safeJuiceTransfer(msg.sender, pending);
+    safeChitinTransfer(msg.sender, pending);
     juice.lock(msg.sender, bonus.mul(bonusLockRatio).div(10000));
   }
 
@@ -291,13 +291,13 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     user.bonusDebt = 0;
   }
 
-    // Safe juice transfer function, just in case if rounding error causes pool to not have enough JUICE.
-  function safeJuiceTransfer(address _to, uint256 _amount) internal {
+    // Safe juice transfer function, just in case if rounding error causes pool to not have enough CHIT.
+  function safeChitinTransfer(address _to, uint256 _amount) internal {
     uint256 juiceBal = juice.balanceOf(address(this));
     if (_amount > juiceBal) {
-      require(juice.transfer(_to, juiceBal), "failed to transfer JUICE");
+      require(juice.transfer(_to, juiceBal), "failed to transfer CHIT");
     } else {
-      require(juice.transfer(_to, _amount), "failed to transfer JUICE");
+      require(juice.transfer(_to, _amount), "failed to transfer CHIT");
     }
   }
 }
