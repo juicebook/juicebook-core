@@ -70,4 +70,4 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default deploy;
-deploy.tags = ['Testnet', 'Minter'];
+deploy.tags = ['Testnet', 'TMinter'];
