@@ -51,8 +51,6 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   uint256 public bonusEndBlock;
   // Lock ratio over 10000 (for precision), determines how much CHIT should be locked.
   uint256 public bonusLockRatio;
-  // Dev minting rate, mint 1/10 of all rewards.
-  uint256 private constant DEV_MINTING_RATE = 10;
 
   // Info of each pool.
   PoolInfo[] public poolInfo;
@@ -203,19 +201,19 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     }
     uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
     uint256 reward = multiplier.mul(blockRewards).mul(pool.allocPoint).div(totalAllocPoint);
-    juice.mint(devaddr, reward.div(DEV_MINTING_RATE));
+    juice.mint(devaddr, reward);
     juice.mint(address(this), reward);
     pool.accRewardsPerShare = pool.accRewardsPerShare.add(reward.mul(1e12).div(lpSupply));
     // update accRewardsPerShareTilBonusEnd
     if (block.number <= bonusEndBlock) {
       // compute the bonus portion for dev
-      juice.lock(devaddr, reward.mul(bonusLockRatio).div(10000).div(DEV_MINTING_RATE));
+      juice.lock(devaddr, reward.mul(bonusLockRatio).div(10000));
       pool.accRewardsPerShareTilBonusEnd = pool.accRewardsPerShare;
     }
     if(block.number > bonusEndBlock && pool.lastRewardBlock < bonusEndBlock) {
       // compute the bonus portion for dev
       uint256 bonusPortion = bonusEndBlock.sub(pool.lastRewardBlock).mul(bonusMultiplier).mul(blockRewards).mul(pool.allocPoint).div(totalAllocPoint);
-      juice.lock(devaddr, bonusPortion.mul(bonusLockRatio).div(10000).div(DEV_MINTING_RATE));
+      juice.lock(devaddr, bonusPortion.mul(bonusLockRatio).div(10000));
       pool.accRewardsPerShareTilBonusEnd = pool.accRewardsPerShareTilBonusEnd.add(bonusPortion.mul(1e12).div(lpSupply));
     }
     pool.lastRewardBlock = block.number;

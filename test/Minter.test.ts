@@ -272,7 +272,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('15000')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('1500')
+                ethers.utils.parseEther('15000')
             );
 
             // 9. Bob come in and join the party
@@ -284,7 +284,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('10000')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('2500')
+                ethers.utils.parseEther('25000')
             );
 
             // 10. Trigger random update pool to make 1 more block mine
@@ -302,7 +302,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('2500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('3000')
+                ethers.utils.parseEther('30000')
             );
 
             // 12. Trigger random update pool to make 1 more block mine
@@ -320,7 +320,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('5000')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('3500')
+                ethers.utils.parseEther('35000')
             );
 
             // 14. Bob harvest his yield
@@ -340,7 +340,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('7500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('4000')
+                ethers.utils.parseEther('40000')
             );
 
             // 15. Alice wants more CHIT so she deposits 300 STOKEN0 more for a total of 400 relative to Bob's 100
@@ -365,7 +365,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('7500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('5000')
+                ethers.utils.parseEther('50000')
             );
 
             // 16. Trigger random update pool to make 1 more block mine
@@ -388,7 +388,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('7500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('5500')
+                ethers.utils.parseEther('55000')
             );
 
             // 17. Ayyooo people vote for the bonus period, 1 block executed
@@ -423,10 +423,10 @@ describe('Minter', () => {
                 ethers.utils.parseEther('7500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('10000')
+                ethers.utils.parseEther('100000')
             );
             expect(await juiceToken.lockOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             // 18. Alice harvest her pending CHIT
@@ -457,10 +457,10 @@ describe('Minter', () => {
                 ethers.utils.parseEther('7500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('10500')
+                ethers.utils.parseEther('105000')
             );
             expect(await juiceToken.lockOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             // 19. Bob harvest his pending CHIT
@@ -493,10 +493,10 @@ describe('Minter', () => {
                 ethers.utils.parseEther('24500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('11000')
+                ethers.utils.parseEther('110000')
             );
             expect(await juiceToken.lockOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             // 20. Alice is happy. Now she want to leave the pool.
@@ -532,10 +532,10 @@ describe('Minter', () => {
                 ethers.utils.parseEther('24500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('11500')
+                ethers.utils.parseEther('115000')
             );
             expect(await juiceToken.lockOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             // 21. Bob is happy. Now he want to leave the pool.
@@ -571,10 +571,10 @@ describe('Minter', () => {
                 ethers.utils.parseEther('30500')
             );
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('12000')
+                ethers.utils.parseEther('120000')
             );
             expect(await juiceToken.lockOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             // Locked CHIT will be released on the next block
@@ -590,7 +590,7 @@ describe('Minter', () => {
                 ethers.utils.parseEther('45000')
             );
             expect(await juiceToken.canUnlockAmount(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('22500')
+                ethers.utils.parseEther('225000')
             );
 
             await juiceTokenAsAlice.unlock();
@@ -605,7 +605,7 @@ describe('Minter', () => {
 
             await juiceTokenAsDev.unlock();
             expect(await juiceToken.balanceOf(await dev.getAddress())).to.be.bignumber.eq(
-                ethers.utils.parseEther('34500')
+                ethers.utils.parseEther('345000')
             );
 
             // Should not be able to set bonus after release period
