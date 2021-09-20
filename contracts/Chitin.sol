@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Chitin Token Contract
 contract Chitin is ERC20("Chitin", "CHIT"), Ownable {
-    uint256 private constant CAP = 280000000e18; // 280 million CHIT
+    uint256 private constant CAP = 256000000e18; // 256 million CHIT
     uint256 private _totalLock;
 
     uint256 public startReleaseBlock;

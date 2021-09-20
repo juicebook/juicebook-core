@@ -5,20 +5,20 @@ import { Chitin__factory, Minter__factory } from '../typechain';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     /* Deploy Parameters */
-    const REWARD_PER_BLOCK = ethers.utils.parseEther('20');
+    const REWARD_PER_BLOCK = ethers.utils.parseEther('14.23042');
     const BONUS_MULTIPLIER = 2;
-    const BONUS_END_BLOCK = '12571308';
+    const BONUS_END_BLOCK = '12287197';
     const BONUS_LOCK_BPS = '5000';
-    const START_BLOCK = '12542600';
-    const LOCK_START_RELEASE = '12571308';
-    const LOCK_END_RELEASE = '12974508';
+    const START_BLOCK = '11394397';
+    const LOCK_START_RELEASE = '12287198';
+    const LOCK_END_RELEASE = '13151198';
     /* Deploy Parameters */
 
     const { deployments, getNamedAccounts, network } = hre;
     const { deploy } = deployments;
 
-    if (network.name !== 'testnet') {
-        console.log('This deployment script should be run against testnet only');
+    if (network.name !== 'mainnet') {
+        console.log('This deployment script should be run against mainnet only');
         return;
     }
 
@@ -70,4 +70,4 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default deploy;
-deploy.tags = ['Testnet', 'TMinter'];
+deploy.tags = ['Mainnet', 'Minter'];
