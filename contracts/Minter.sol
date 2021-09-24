@@ -40,7 +40,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   }
 
   // The Chitin TOKEN!
-  Chitin public juice;
+  Chitin public chitin;
   // Dev address.
   address public devaddr;
   // Chitin tokens created per block.
@@ -66,7 +66,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
   event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
   constructor(
-    Chitin _juice,
+    Chitin _chitin,
     address _devaddr,
     uint256 _blockRewards,
     uint256 _startBlock
@@ -74,7 +74,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     bonusMultiplier = 0;
     totalAllocPoint = 0;
     bonusEndBlock = 0;
-    juice = _juice;
+    chitin = _chitin;
     devaddr = _devaddr;
     blockRewards = _blockRewards;
     startBlock = _startBlock;
@@ -99,7 +99,7 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     uint256 _bonusLockRatio
   ) external onlyOwner {
     require(_bonusEndBlock > block.number, "setBonus: bad bonusEndBlock");
-    require(block.number < juice.endReleaseBlock(), "setBonus: bad block");
+    require(block.number < chitin.endReleaseBlock(), "setBonus: bad block");
     require(_bonusMultiplier > 1, "setBonus: bad bonusMultiplier");
     bonusMultiplier = _bonusMultiplier;
     bonusEndBlock = _bonusEndBlock;
@@ -201,19 +201,19 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     }
     uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
     uint256 reward = multiplier.mul(blockRewards).mul(pool.allocPoint).div(totalAllocPoint);
-    juice.mint(devaddr, reward);
-    juice.mint(address(this), reward);
+    chitin.mint(devaddr, reward);
+    chitin.mint(address(this), reward);
     pool.accRewardsPerShare = pool.accRewardsPerShare.add(reward.mul(1e12).div(lpSupply));
     // update accRewardsPerShareTilBonusEnd
     if (block.number <= bonusEndBlock) {
       // compute the bonus portion for dev
-      juice.lock(devaddr, reward.mul(bonusLockRatio).div(10000));
+      chitin.lock(devaddr, reward.mul(bonusLockRatio).div(10000));
       pool.accRewardsPerShareTilBonusEnd = pool.accRewardsPerShare;
     }
     if(block.number > bonusEndBlock && pool.lastRewardBlock < bonusEndBlock) {
       // compute the bonus portion for dev
       uint256 bonusPortion = bonusEndBlock.sub(pool.lastRewardBlock).mul(bonusMultiplier).mul(blockRewards).mul(pool.allocPoint).div(totalAllocPoint);
-      juice.lock(devaddr, bonusPortion.mul(bonusLockRatio).div(10000));
+      chitin.lock(devaddr, bonusPortion.mul(bonusLockRatio).div(10000));
       pool.accRewardsPerShareTilBonusEnd = pool.accRewardsPerShareTilBonusEnd.add(bonusPortion.mul(1e12).div(lpSupply));
     }
     pool.lastRewardBlock = block.number;
@@ -272,10 +272,10 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     UserInfo storage user = userInfo[_pid][msg.sender];
     require(user.amount > 0, "nothing to harvest");
     uint256 pending = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardDebt);
-    require(pending <= juice.balanceOf(address(this)), "not enough CHIT");
+    require(pending <= chitin.balanceOf(address(this)), "not enough CHIT");
     uint256 bonus = user.amount.mul(pool.accRewardsPerShareTilBonusEnd).div(1e12).sub(user.bonusDebt);
     safeChitinTransfer(msg.sender, pending);
-    juice.lock(msg.sender, bonus.mul(bonusLockRatio).div(10000));
+    chitin.lock(msg.sender, bonus.mul(bonusLockRatio).div(10000));
   }
 
   // Withdraw without caring about rewards. EMERGENCY ONLY.
@@ -289,13 +289,13 @@ contract Minter is IMinter, Ownable, ReentrancyGuard {
     user.bonusDebt = 0;
   }
 
-    // Safe juice transfer function, just in case if rounding error causes pool to not have enough CHIT.
+    // Safe chitin transfer function, just in case if rounding error causes pool to not have enough CHIT.
   function safeChitinTransfer(address _to, uint256 _amount) internal {
-    uint256 juiceBal = juice.balanceOf(address(this));
-    if (_amount > juiceBal) {
-      require(juice.transfer(_to, juiceBal), "failed to transfer CHIT");
+    uint256 chitinBal = chitin.balanceOf(address(this));
+    if (_amount > chitinBal) {
+      require(chitin.transfer(_to, chitinBal), "failed to transfer CHIT");
     } else {
-      require(juice.transfer(_to, _amount), "failed to transfer CHIT");
+      require(chitin.transfer(_to, _amount), "failed to transfer CHIT");
     }
   }
 }
